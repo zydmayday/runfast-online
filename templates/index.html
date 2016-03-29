@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <!-- Bootstrap -->
+    <link href="{{ static_url('css/bootstrap.min.css')}}" rel="stylesheet">
+    <link href="{{ static_url('css/bootstrap-theme.min.css')}}" rel="stylesheet">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <title>{{ title }}</title>
+</head>
+<body>
+    <div class='container'>
+        <!-- 玩家选择进入游戏 -->
+        <div class="btn-group" role="group" aria-label="...">
+          <button type="button" class="btn btn-default" id='join'>Join</button>
+          <!-- <button type="button" class="btn btn-default">Middle</button>
+          <button type="button" class="btn btn-default">Right</button> -->
+        </div>
+        <div class="input-group">
+          <span class="input-group-addon" id="basic-addon1">@</span>
+          <input type="text" class="form-control" placeholder="Username" aria-describedby="basic-addon1" id='player-name'>
+        </div>
+
+        <div id='card-board'></div>
+    </div>
+    <input type='hidden' value='{{ session }}' id='session'></input>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{{ static_url('js/bootstrap.min.js')}}"></script>
+	<script type="application/javascript" src="{{ static_url('js/card_board.js') }}"></script>
+</body>
+</html>

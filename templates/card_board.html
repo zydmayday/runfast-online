@@ -1,0 +1,54 @@
+{{ msg }}
+
+<style type="text/css">
+	.card {
+		width: 6%;
+	}
+	.card[isSelected=true] {
+		width: 100px;
+	}
+	#own-cards-list li {
+		display: inline;
+	}
+	#opponent-cards-list {
+		display: inline;
+	}
+</style>
+
+<div class='row'>
+	<div class="col-md-2" id='info-board'>
+		<div id='player-list-div'>
+			<ul class="list-group" id='player-list'>
+				<li class="list-group-item active">当前加入玩家</li>
+				{% for p in players %}
+			  		<li class="list-group-item player-name" name='{{p.name}}'>{{p.name}}</li>
+			  	{% end %}
+			</ul>
+		</div>
+	</div>
+	<div class='col-md-10' id='played-card'>
+		
+	</div>
+		<!-- <div class='col-md-7' id='pre-cards'>
+
+		</div>
+		<div class='col-md-2' id='current-turn'>
+
+		</div>
+		<div class='col-md-2' id='who-played'>
+
+		</div> -->
+</div>
+
+<div class='row'>
+	<div class='col-md-12' id='own-cards'>
+		<ul id='own-cards-list'></ul>
+	</div>
+</div>
+
+<div class='row'>
+	 <div class="btn-group col-md-12" role="group" aria-label="..." id='actions'>
+      	<button type="button" class="btn btn-default" id='playCard'>出牌</button>
+      	<button type="button" class="btn btn-default" id='passTurn'>过</button>
+    </div>
+</div>
