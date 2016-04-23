@@ -11,14 +11,20 @@ from uuid import uuid4
 import pickle
 from runFast import RunFast, Player
 import time
+from environment import RunFastEnvironment
+from controller import RunFastNetwork
+from agent import RunFastAgent
 
-class CardGame(RunFast):
+
+PLAY_WITH_AGENT = True
+
+class CardGame(RunFastEnvironment):
     callbacks = []
     session_name_dict = {}
     PASSTYPE = 'PASS'
 
     def __init__(self):
-        RunFast.__init__(self)
+        RunFastEnvironment.__init__(self)
         self.played_card_dict = {}
 
     def register(self, callback, session):
@@ -85,8 +91,10 @@ class CardGame(RunFast):
             self.moveToNext(playedCards, playedType)
 
         self.notifyCallbacks()
-        # self.autoPlay()
-        # self.autoPlay()
+        # for auto play
+        if PLAY_WITH_AGENT:
+            self.autoPlay()
+            self.autoPlay()
 
 
     def start_game(self):
@@ -101,9 +109,10 @@ class CardGame(RunFast):
             info = {'type': 'started','currentTurn': self.players[self.currentTurn].name, 'currentCard': self.currentCard, 'whoPlayed': whoPlayedName, 'cards': player.getCurrentCards(), 'played_card_dict': []}
             callback_dict['callback'](info)
         print 'game started'
-
-        # while self.players[self.currentTurn].name == 'random1' or self.players[self.currentTurn].name == 'random2':
-        #     self.autoPlay()
+        # for auto play
+        if PLAY_WITH_AGENT:
+            while self.players[self.currentTurn].name == 'random1' or self.players[self.currentTurn].name == 'random2':
+                self.autoPlay()
             
 
 
@@ -124,7 +133,7 @@ class CardGame(RunFast):
         for callback_dict in self.callbacks:
             callback_dict['callback'](info)
 
-    def autoPlay(self):
+    def autoPlay(self, agent=None):
         '''
         用在一个人玩的时候，提供两个电脑进行对战
         '''
@@ -133,13 +142,18 @@ class CardGame(RunFast):
         whoPlayed = self.whoPlayed
         preCards = self.currentCard
         preType = self.currentType
-        cards_dict = {}
-        if currentTurn == whoPlayed:
-            cards_dict = self.players[currentTurn].playRandom()
-        elif whoPlayed == -1:
-            cards_dict = self.players[currentTurn].playCardsWithHart3()
-        else:
-            cards_dict = self.players[currentTurn].playRandomByPreCards(preType, preCards)
+        player = self.players[currentTurn]
+        # cards_dict = {}
+        # if self.agent:
+        state = self.getState()
+        cards_dict = player.getBestAction(state)
+        # else:
+        #     if currentTurn == whoPlayed:
+        #         cards_dict = self.players[currentTurn].playRandom()
+        #     elif whoPlayed == -1:
+        #         cards_dict = self.players[currentTurn].playCardsWithHart3()
+        #     else:
+        #         cards_dict = self.players[currentTurn].playRandomByPreCards(preType, preCards)
         playedCards = cards_dict['cards']
         playedType = cards_dict['type']
         self.players[currentTurn].removeCards(playedCards)
@@ -178,16 +192,21 @@ class MainHandler(tornado.web.RequestHandler):
             return 
 
         players = self.application.game.players
-
-        if len(players) == 3:
+        player_len = 3
+        if PLAY_WITH_AGENT:
+            player_len = 1
+        if len(players) == player_len:
             self.finish('full')
         else:
             players.append(Player(player_name))
                 
             game.notifyJoinedCallbacks(player_name)
-            if len(players) == 3:
-                # players.append(Player('random1'))
-                # players.append(Player('random2'))
+            if len(players) == player_len:
+                if PLAY_WITH_AGENT:
+                    f = open('10000.nn')
+                    nn = pickle.load(f)     
+                    players.append(RunFastAgent('random1', nn))
+                    players.append(RunFastAgent('random2', nn))
                 game.shuffle()
                 game.dealCards()
                 self.render('card_board.html', msg='you have joined the game', players=players)
@@ -267,7 +286,7 @@ class Application(tornado.web.Application):
     '''
     应用的主接口，用来配置一些基本的参数
     '''
-    def __init__(self):
+    def __init__(self):  
         self.game = CardGame()
 
         handlers = {
